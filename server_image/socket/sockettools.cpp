@@ -19,16 +19,17 @@ IplImage* SocketTools::read_image_from_socket(int fd)
     int image_size = width * height * channels;
 
     while(image_size > 0){
-        n = read(fd, ptr, 1024);
+        int next_count = image_size < 1024 ? image_size : 1024;
+        n = read(fd, ptr, next_count);
         printf("recv: %d\n", n);
         ptr += n;
         image_size -= n;
     }
 
-    cvSaveImage("t1.jpg", image);
-    cvNamedWindow("result");
-    cvShowImage("result", image);
-    cvWaitKey();
+//    cvSaveImage("t1.jpg", image);
+//    cvNamedWindow("result");
+//    cvShowImage("result", image);
+//    cvWaitKey();
 
     return image;
 }

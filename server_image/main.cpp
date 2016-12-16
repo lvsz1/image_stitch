@@ -9,51 +9,67 @@
 
 #include "./socket/sockettools.h"
 #include "sift/siftmatch.h"
+#include "schedule/socketselect.h"
 
-#define CONNECT_MAX 100
-#define BUFFER_SIZE 100
 
-int main()
+void connect_process(int fd)
 {
-    IplImage *image1 = cvLoadImage("1.jpg");
-    IplImage *image2 = cvLoadImage("2.jpg");
+    IplImage *image1 = SocketTools::read_image_from_socket(fd);
+    IplImage *image2 = SocketTools::read_image_from_socket(fd);
 
     SiftMatch matcher(image1, image2);
     IplImage *result = matcher.match();
     cvNamedWindow("result");
     cvShowImage("result", result);
     cvWaitKey();
+}
 
-//    int listen_fd, connt_fd;
-//    int connt_fds[CONNECT_MAX];
-//    fd_set all_set, r_set;
-//    struct sockaddr_in serv_addr, cli_addr;
-//    int nready, maxfd, max_index;
-//    int connt_count = 0;
-//    char buff[BUFFER_SIZE];
+int main()
+{
 
-//    if((listen_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
-//        perror("socket");
-//    }
 
-//    bzero(&serv_addr, sizeof(struct sockaddr_in));
-//    serv_addr.sin_family = AF_INET;
-//    serv_addr.sin_port = htons(5556);
-//    if(inet_pton(AF_INET, "192.168.10.128", &serv_addr.sin_addr) < 0){
-//        perror("inet_pton");
-//    }
+//    IplImage *image1 = cvLoadImage("1.jpg");
+//    IplImage *image2 = cvLoadImage("2.jpg");
 
-//    int optval = 1;
-//    if(setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0){
-//        perror("setsockopt");
-//    }
+//    SiftMatch matcher(image1, image2);
+//    IplImage *result = matcher.match();
+//    cvNamedWindow("result");
+//    cvShowImage("result", result);
+//    cvWaitKey();
 
-//    if(bind(listen_fd, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr_in)) < 0){
-//        perror("bind");
-//    }
-//    if(listen(listen_fd, 10) < 0){
-//        perror("listen");
-//    }
+    int listen_fd, connt_fd;
+    int connt_fds[CONNECT_MAX];
+    fd_set all_set, r_set;
+    struct sockaddr_in serv_addr, cli_addr;
+    int nready, maxfd, max_index;
+    int connt_count = 0;
+    char buff[BUFFER_SIZE];
+
+    if((listen_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
+        perror("socket");
+    }
+
+    bzero(&serv_addr, sizeof(struct sockaddr_in));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(5556);
+    if(inet_pton(AF_INET, "192.168.10.128", &serv_addr.sin_addr) < 0){
+        perror("inet_pton");
+    }
+
+    int optval = 1;
+    if(setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0){
+        perror("setsockopt");
+    }
+
+    if(bind(listen_fd, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr_in)) < 0){
+        perror("bind");
+    }
+    if(listen(listen_fd, 10) < 0){
+        perror("listen");
+    }
+
+    SocketSelect socket_select(listen_fd, connect_process);
+    socket_select.connect_by_select();
 
 //    FD_ZERO(&all_set);
 //    FD_ZERO(&r_set);
