@@ -13,7 +13,7 @@ IplImage* SocketTools::read_image_from_socket(int fd)
     read_image_head_information(fd, width, height, depth, channels);
     IplImage *image = cvCreateImage(cvSize(width, height), depth, channels);
 
-    printf("width: %d height: %d\n", width, height);
+//    printf("width: %d height: %d\n", width, height);
 
     char *ptr = (char *)image->imageData;
     int image_size = width * height * channels;
@@ -21,15 +21,10 @@ IplImage* SocketTools::read_image_from_socket(int fd)
     while(image_size > 0){
         int next_count = image_size < 1024 ? image_size : 1024;
         n = read(fd, ptr, next_count);
-        printf("recv: %d\n", n);
+//        printf("recv: %d\n", n);
         ptr += n;
         image_size -= n;
     }
-
-//    cvSaveImage("t1.jpg", image);
-//    cvNamedWindow("result");
-//    cvShowImage("result", image);
-//    cvWaitKey();
 
     return image;
 }
@@ -49,4 +44,40 @@ void SocketTools::read_image_head_information(int fd, int &width, int &height, i
 
     read(fd, &tmp, 4);
     channels = ntohl(tmp);
+}
+
+void SocketTools::send_image_by_socket(int fd, IplImage *image)
+{
+    int width, height, depth, channels;
+    width = image->width;
+    height = image->height;
+    depth = image->depth;
+    channels = image->nChannels;
+
+    send_image_head_information(fd, width, height, depth, channels);
+
+    int image_size = width * height * channels;
+    char *ptr = image->imageData;
+    while(image_size > 0){
+        int n = image_size < 1024 ? image_size: 1024;
+        write(fd, ptr, n);
+        image_size -= n;
+        ptr += n;
+    }
+}
+
+void SocketTools::send_image_head_information(int fd, int width, int height, int depth, int channels)
+{
+    int tmp;
+    tmp = htonl(width);
+    write(fd, &tmp, 4);
+
+    tmp = htonl(height);
+    write(fd, &tmp, 4);
+
+    tmp = htonl(depth);
+    write(fd, &tmp, 4);
+
+    tmp = htonl(channels);
+    write(fd, &tmp, 4);
 }

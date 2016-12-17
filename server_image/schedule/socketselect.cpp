@@ -75,6 +75,9 @@ void SocketSelect::connect_by_select()
 //                IplImage *image = SocketTools::read_image_from_socket(connt_fds[i]);
 
                 connect_process(connt_fds[i]);
+                close(connt_fds[i]);
+                FD_CLR(connt_fds[i], &all_set);
+                connt_count --;
                 printf("over\n");
 
                 if(-- nready <= 0)
