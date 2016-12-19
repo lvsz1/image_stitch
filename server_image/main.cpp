@@ -12,16 +12,23 @@
 #include "schedule/socketselect.h"
 
 
-void connect_process(int fd)
+void *connect_process(void* arg)
 {
+    int fd = (int)arg;
     IplImage *image1 = SocketTools::read_image_from_socket(fd);
     IplImage *image2 = SocketTools::read_image_from_socket(fd);
 
     SiftMatch matcher(image1, image2);
     IplImage *result = matcher.match();
-    cvNamedWindow("result");
-    cvShowImage("result", result);
-    cvWaitKey();
+
+    SocketTools::send_image_by_socket(fd, result);
+
+    close(fd);
+//    cvSaveImage("result.jpg", result);
+
+//    cvNamedWindow("result");
+//    cvShowImage("result", result);
+//    cvWaitKey(2000);
 }
 
 int main()

@@ -14,15 +14,15 @@
 class SocketSelect
 {
 public:
-    SocketSelect(int listen_fd, void(*connect_process)(int));
+    SocketSelect(int listen_fd, void *(*connect_process)(void *));
 
     //进入select等待状态
     void connect_by_select();
 
     //回调函数 当tcp建立连接时，进行任务处理
-    void (*connect_process)(int);
+    void *(*connect_process)(void *);
 
-    void set_connect_process(void(*connect_process)(int));
+    void set_connect_process(void *(*connect_process)(void *));
 
 private:
     int listen_fd, connt_fd;

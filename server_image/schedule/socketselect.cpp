@@ -1,12 +1,13 @@
 #include "socketselect.h"
+#include "threadpool.h"
 
-SocketSelect::SocketSelect(int listen_fd, void(*connect_process)(int))
+SocketSelect::SocketSelect(int listen_fd, void* (*connect_process)(void *))
     :listen_fd(listen_fd), connect_process(connect_process)
 {
     connt_count = 0;
 }
 
-void SocketSelect::set_connect_process(void (*connect_process)(int))
+void SocketSelect::set_connect_process(void *(*connect_process)(void *))
 {
     this->connect_process = connect_process;
 }
@@ -22,6 +23,8 @@ void SocketSelect::connect_by_select()
     }
     max_index = -1;
     maxfd = listen_fd + 1;
+    //采用线程池
+    ThreadPool thread_pool;
 
     while(1){
         printf("connect count: %d\n", connt_count);
@@ -59,7 +62,7 @@ void SocketSelect::connect_by_select()
 
         for(int i = 0; i <= max_index; i ++){
             if(connt_fds[i] != -1 && FD_ISSET(connt_fds[i], &r_set)){
-                int n;
+//                int n;
 //                if((n = read(connt_fds[i], buff, BUFFER_SIZE)) < 0){
 //                    perror("read");
 //                }else if(0 == n){
@@ -74,8 +77,11 @@ void SocketSelect::connect_by_select()
 //                read_image_from_socket(connt_fds[i]);
 //                IplImage *image = SocketTools::read_image_from_socket(connt_fds[i]);
 
-                connect_process(connt_fds[i]);
-                close(connt_fds[i]);
+//                connect_process((void *)connt_fds[i]);
+                //任务处理完毕后，关闭socket连接，该操作是在线程中完成
+                thread_pool.add_job(connect_process, (void *)connt_fds[i]);
+
+//                close(connt_fds[i]);
                 FD_CLR(connt_fds[i], &all_set);
                 connt_count --;
                 printf("over\n");
