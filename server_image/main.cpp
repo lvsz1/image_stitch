@@ -7,9 +7,10 @@
 #include <arpa/inet.h>
 #include <error.h>
 
-#include "./socket/sockettools.h"
+#include "socket/sockettools.h"
 #include "sift/siftmatch.h"
 #include "schedule/socketselect.h"
+#include "schedule/socketepoll.h"
 
 
 void *connect_process(void* arg)
@@ -59,8 +60,11 @@ int main()
         perror("listen");
     }
 
-    SocketSelect socket_select(listen_fd, connect_process);
-    socket_select.connect_by_select();
+//    SocketSelect socket_select(listen_fd, connect_process);
+//    socket_select.connect_by_select();
+
+    SocketEpoll socket_epoll(listen_fd, connect_process);
+    socket_epoll.connect_by_epoll();
 
     close(listen_fd);
     return 0;

@@ -13,7 +13,8 @@ SOURCES += main.cpp \
     sift/kdtree.c \
     sift/imgfeatures.c \
     schedule/socketselect.cpp \
-    schedule/threadpool.cpp
+    schedule/threadpool.cpp \
+    schedule/socketepoll.cpp
 
 HEADERS += \
     socket/sockettools.h \
@@ -26,7 +27,8 @@ HEADERS += \
     sift/imgfeatures.h \
     schedule/socketselect.h \
     schedule/io_limit.h \
-    schedule/threadpool.h
+    schedule/threadpool.h \
+    schedule/socketepoll.h
 
 INCLUDEPATH += /usr/local/include
 INCLUDEPATH += /usr/local/include/opencv
