@@ -14,7 +14,8 @@ SOURCES += main.cpp \
     sift/imgfeatures.c \
     schedule/socketselect.cpp \
     schedule/threadpool.cpp \
-    schedule/socketepoll.cpp
+    schedule/socketepoll.cpp \
+    schedule/socketlibevent.cpp
 
 HEADERS += \
     socket/sockettools.h \
@@ -28,7 +29,8 @@ HEADERS += \
     schedule/socketselect.h \
     schedule/io_limit.h \
     schedule/threadpool.h \
-    schedule/socketepoll.h
+    schedule/socketepoll.h \
+    schedule/socketlibevent.h
 
 INCLUDEPATH += /usr/local/include
 INCLUDEPATH += /usr/local/include/opencv
@@ -38,3 +40,5 @@ LIBS += /usr/local/lib/libopencv_highgui.so
 LIBS += /usr/local/lib/libopencv_core.so
 LIBS += /usr/local/lib/libopencv_imgproc.so
 LIBS += /usr/local/lib/libopencv*.so
+
+LIBS += -levent

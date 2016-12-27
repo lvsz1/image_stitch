@@ -11,6 +11,7 @@
 #include "sift/siftmatch.h"
 #include "schedule/socketselect.h"
 #include "schedule/socketepoll.h"
+#include "schedule/socketlibevent.h"
 
 
 void *connect_process(void* arg)
@@ -23,6 +24,8 @@ void *connect_process(void* arg)
     IplImage *result = matcher.match();
 
     SocketTools::send_image_by_socket(fd, result);
+    cvReleaseImage(&image1);
+    cvReleaseImage(&image2);
 
     close(fd);
 //    cvSaveImage("result.jpg", result);
@@ -63,8 +66,11 @@ int main()
 //    SocketSelect socket_select(listen_fd, connect_process);
 //    socket_select.connect_by_select();
 
-    SocketEpoll socket_epoll(listen_fd, connect_process);
-    socket_epoll.connect_by_epoll();
+//    SocketEpoll socket_epoll(listen_fd, connect_process);
+//    socket_epoll.connect_by_epoll();
+
+    SocketLibevent socket_libevent(listen_fd);
+    socket_libevent.connect_by_libevent();
 
     close(listen_fd);
     return 0;

@@ -81,3 +81,34 @@ void SocketTools::send_image_head_information(int fd, int width, int height, int
     tmp = htonl(channels);
     write(fd, &tmp, 4);
 }
+
+void SocketTools::send_image_by_libevent(bufferevent *bev, IplImage *image)
+{
+    int width, height, depth, channels;
+    width = image->width;
+    height = image->height;
+    depth = image->depth;
+    channels = image->nChannels;
+    int image_size = width * height * channels;
+
+    bufferevent_lock(bev);
+    send_image_head_information(bev, width, height, depth, channels);
+    bufferevent_write(bev, image->imageData, image_size);
+    bufferevent_unlock(bev);
+}
+
+void SocketTools::send_image_head_information(bufferevent *bev, int width, int height, int depth, int channels)
+{
+    int tmp;
+    tmp = htonl(width);
+    bufferevent_write(bev, &tmp, 4);
+
+    tmp = htonl(height);
+    bufferevent_write(bev, &tmp, 4);
+
+    tmp = htonl(depth);
+    bufferevent_write(bev, &tmp, 4);
+
+    tmp = htonl(channels);
+    bufferevent_write(bev, &tmp, 4);
+}
